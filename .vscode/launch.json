@@ -9,10 +9,10 @@
       "request": "launch",
       "type": "dart",
       "args": [
-        "--dart-define=COINMARKETCAP_API_KEY=YOUR_API_KEY",
+        "--dart-define=COINMARKETCAP_API_KEY=b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c", // dev
         "--dart-define=ENABLE_LOGGING=true",
         "--dart-define=ENABLE_CACHE=true",
-        "--dart-define=IS_PRODUCTION=true"
+        "--dart-define=IS_PRODUCTION=false"
       ]
     },
   ]
