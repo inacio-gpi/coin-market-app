@@ -2,6 +2,7 @@ import 'package:coin_market_app/features/exchanges/presentation/bloc/exchange_bl
 import 'package:coin_market_app/features/exchanges/presentation/bloc/exchange_event.dart';
 import 'package:coin_market_app/features/exchanges/presentation/bloc/exchange_state.dart';
 import 'package:coin_market_app/features/exchanges/presentation/widgets/exchange_asset_card.dart';
+import 'package:coin_market_app/features/exchanges/presentation/widgets/exchange_info_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,24 +20,13 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
   void initState() {
     super.initState();
     context.read<ExchangeBloc>().add(
-      GetExchangeAssetsEvent(exchangeId: widget.exchangeId),
+      LoadExchangeDetailsEvent(exchangeId: widget.exchangeId),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Exchange Assets (ID: ${widget.exchangeId})'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => _refreshAssets(),
-            tooltip: 'Refresh (Cache: 5 min)',
-          ),
-        ],
-      ),
       body: BlocBuilder<ExchangeBloc, ExchangeState>(
         builder: (context, state) {
           if (state is ExchangeLoading) {
@@ -46,58 +36,9 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('Loading exchange assets...'),
+                  Text('Loading exchange details...'),
                 ],
               ),
-            );
-          }
-
-          if (state is ExchangeAssetsLoaded) {
-            if (state.assets.isEmpty) {
-              return const Center(
-                child: Text('No assets found for this exchange.'),
-              );
-            }
-
-            return Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.cached,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Exchange Assets (ID: ${widget.exchangeId})',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ),
-                      Text(
-                        '${state.assets.length} assets',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.assets.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: ExchangeAssetCard(asset: state.assets[index]),
-                      );
-                    },
-                  ),
-                ),
-              ],
             );
           }
 
@@ -119,11 +60,47 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: _refreshAssets,
+                    onPressed: _refreshData,
                     child: const Text('Retry'),
                   ),
                 ],
               ),
+            );
+          }
+
+          if (state is ExchangeDetailsLoaded) {
+            return CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: 320,
+                  pinned: true,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: ExchangeInfoHeader(exchangeInfo: state.info),
+                  ),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: _refreshData,
+                      tooltip: 'Refresh (Cache: 5 min)',
+                    ),
+                  ],
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      'Exchange Assets',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+
+                _buildAssetsList(state.assets),
+              ],
             );
           }
 
@@ -133,9 +110,40 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
     );
   }
 
-  void _refreshAssets() {
+  Widget _buildAssetsList(List<dynamic> assets) {
+    if (assets.isEmpty) {
+      return const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'No assets found for this exchange',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SliverList(
+      delegate: SliverChildBuilderDelegate((context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: ExchangeAssetCard(asset: assets[index]),
+        );
+      }, childCount: assets.length),
+    );
+  }
+
+  void _refreshData() {
     context.read<ExchangeBloc>().add(
-      RefreshExchangeAssetsEvent(exchangeId: widget.exchangeId),
+      LoadExchangeDetailsEvent(exchangeId: widget.exchangeId),
     );
   }
 }

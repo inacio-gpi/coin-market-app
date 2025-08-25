@@ -3,6 +3,7 @@ import 'package:coin_market_app/core/errors/failures.dart';
 import 'package:coin_market_app/features/exchanges/data/datasources/exchange_local_datasource.dart';
 import 'package:coin_market_app/features/exchanges/data/datasources/exchange_remote_datasource.dart';
 import 'package:coin_market_app/features/exchanges/domain/entities/exchange_asset.dart';
+import 'package:coin_market_app/features/exchanges/domain/entities/exchange_info.dart';
 import 'package:coin_market_app/features/exchanges/domain/repositories/exchange_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -36,6 +37,18 @@ class ExchangeRepositoryImpl implements ExchangeRepository {
       return Left(ServerFailure(message: e.message, code: e.code));
     } on CacheException catch (e) {
       return Left(CacheFailure(message: e.message, code: e.code));
+    } catch (e) {
+      return Left(UnknownFailure(message: 'Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ExchangeInfo>> getExchangeInfo(int exchangeId) async {
+    try {
+      final remoteInfo = await remoteDataSource.getExchangeInfo(exchangeId);
+      return Right(remoteInfo.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.code));
     } catch (e) {
       return Left(UnknownFailure(message: 'Unexpected error: $e'));
     }

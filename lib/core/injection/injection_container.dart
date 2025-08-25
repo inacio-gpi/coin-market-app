@@ -4,6 +4,7 @@ import 'package:coin_market_app/features/exchanges/data/datasources/exchange_rem
 import 'package:coin_market_app/features/exchanges/data/repositories_impl/exchange_repository_impl.dart';
 import 'package:coin_market_app/features/exchanges/domain/repositories/exchange_repository.dart';
 import 'package:coin_market_app/features/exchanges/domain/usecases/get_exchange_assets.dart';
+import 'package:coin_market_app/features/exchanges/domain/usecases/get_exchange_info.dart';
 import 'package:coin_market_app/features/exchanges/presentation/bloc/exchange_bloc.dart';
 import 'package:coin_market_app/features/home/data/datasources/home_remote_datasource.dart';
 import 'package:coin_market_app/features/home/data/repositories_impl/home_repository_impl.dart';
@@ -44,5 +45,8 @@ Future<void> init() async {
     ),
   );
   getIt.registerLazySingleton(() => GetExchangeAssets(getIt()));
-  getIt.registerFactory(() => ExchangeBloc(getExchangeAssets: getIt()));
+  getIt.registerLazySingleton(() => GetExchangeInfo(getIt()));
+  getIt.registerFactory(
+    () => ExchangeBloc(getExchangeAssets: getIt(), getExchangeInfo: getIt()),
+  );
 }
