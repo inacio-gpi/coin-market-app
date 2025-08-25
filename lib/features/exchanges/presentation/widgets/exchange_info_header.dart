@@ -23,10 +23,8 @@ class ExchangeInfoHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Logo and Name Row
           Row(
             children: [
-              // Logo placeholder
               Container(
                 width: 80,
                 height: 80,
@@ -42,7 +40,6 @@ class ExchangeInfoHeader extends StatelessWidget {
               ),
               const SizedBox(width: 20),
 
-              // Exchange details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,8 +55,8 @@ class ExchangeInfoHeader extends StatelessWidget {
                     Text(
                       'ID: ${exchangeInfo.id}',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onPrimaryContainer.withOpacity(
-                          0.8,
+                        color: theme.colorScheme.onPrimaryContainer.withValues(
+                          alpha: 0.8,
                         ),
                       ),
                     ),
@@ -69,7 +66,7 @@ class ExchangeInfoHeader extends StatelessWidget {
                         exchangeInfo.description,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onPrimaryContainer
-                              .withOpacity(0.9),
+                              .withValues(alpha: 0.9),
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -138,7 +135,7 @@ class ExchangeInfoHeader extends StatelessWidget {
                 child: _buildInfoRow(
                   context,
                   'Launched',
-                  _formatDate(exchangeInfo.dateLaunched),
+                  Formatters.formatDate(exchangeInfo.dateLaunched),
                   Icons.calendar_today,
                 ),
               ),
@@ -165,7 +162,7 @@ class ExchangeInfoHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -208,7 +205,7 @@ class ExchangeInfoHeader extends StatelessWidget {
         Icon(
           icon,
           size: 20,
-          color: theme.colorScheme.onPrimaryContainer.withOpacity(0.8),
+          color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -218,7 +215,9 @@ class ExchangeInfoHeader extends StatelessWidget {
               Text(
                 label,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer.withOpacity(0.7),
+                  color: theme.colorScheme.onPrimaryContainer.withValues(
+                    alpha: 0.7,
+                  ),
                 ),
               ),
               Text(
@@ -234,9 +233,5 @@ class ExchangeInfoHeader extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 }
