@@ -3,6 +3,7 @@ import 'package:coin_market_app/features/home/presentation/bloc/home_event.dart'
 import 'package:coin_market_app/features/home/presentation/bloc/home_state.dart';
 import 'package:coin_market_app/features/home/presentation/widgets/exchange_list_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,6 +24,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
         title: const Text('Coin Market App'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [

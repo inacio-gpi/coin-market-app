@@ -4,6 +4,7 @@ import 'package:coin_market_app/features/exchanges/presentation/bloc/exchange_st
 import 'package:coin_market_app/features/exchanges/presentation/widgets/exchange_asset_card.dart';
 import 'package:coin_market_app/features/exchanges/presentation/widgets/exchange_info_header.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ExchangesListPage extends StatefulWidget {
@@ -27,85 +28,170 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<ExchangeBloc, ExchangeState>(
-        builder: (context, state) {
-          if (state is ExchangeLoading) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Loading exchange details...'),
-                ],
-              ),
-            );
-          }
+      body: SafeArea(
+        child: BlocBuilder<ExchangeBloc, ExchangeState>(
+          builder: (context, state) {
+            if (state is ExchangeLoading) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Loading exchange details...'),
+                  ],
+                ),
+              );
+            }
 
-          if (state is ExchangeError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error: ${state.message}',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _refreshData,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is ExchangeDetailsLoaded) {
-            return CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  expandedHeight: 320,
-                  pinned: true,
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: ExchangeInfoHeader(exchangeInfo: state.info),
-                  ),
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.refresh),
+            if (state is ExchangeError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error: ${state.message}',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
                       onPressed: _refreshData,
-                      tooltip: 'Refresh (Cache: 5 min)',
+                      child: const Text('Retry'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _goBack,
+                      child: const Text('Voltar'),
                     ),
                   ],
                 ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      'Exchange Assets',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
+              );
+            }
+
+            if (state is ExchangeDetailsLoaded) {
+              return CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    systemOverlayStyle: SystemUiOverlayStyle(
+                      statusBarColor: Theme.of(
+                        context,
+                      ).colorScheme.inversePrimary,
+                    ),
+
+                    expandedHeight: 400,
+                    pinned: true,
+                    floating: false,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.inversePrimary,
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onPrimaryContainer,
+                    elevation: 0,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: ExchangeInfoHeader(exchangeInfo: state.info),
+                      centerTitle: true,
+                      title: Text(
+                        '${state.info.name} Assets',
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              offset: const Offset(0, 1),
+                              blurRadius: 3.0,
+                              color: Colors.black.withOpacity(0.3),
+                            ),
+                          ],
+                        ),
+                      ),
+                      titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+                    ),
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: _refreshData,
+                        tooltip: 'Refresh (Cache: 5 min)',
+                      ),
+                    ],
+                  ),
+
+                  // Seção de Assets com design melhorado
+                  SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.account_balance_wallet,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Exchange Assets',
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '${state.assets.length} assets',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
-                _buildAssetsList(state.assets),
-              ],
-            );
-          }
+                  // Lista de assets
+                  _buildAssetsList(state.assets),
+                ],
+              );
+            }
 
-          return const Center(child: Text('No data available.'));
-        },
+            return const Center(child: Text('No data available.'));
+          },
+        ),
       ),
     );
   }
@@ -131,13 +217,16 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
       );
     }
 
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((context, index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: ExchangeAssetCard(asset: assets[index]),
-        );
-      }, childCount: assets.length),
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate((context, index) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: ExchangeAssetCard(asset: assets[index]),
+          );
+        }, childCount: assets.length),
+      ),
     );
   }
 
@@ -145,5 +234,9 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
     context.read<ExchangeBloc>().add(
       LoadExchangeDetailsEvent(exchangeId: widget.exchangeId),
     );
+  }
+
+  void _goBack() {
+    Navigator.pop(context);
   }
 }

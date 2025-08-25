@@ -12,23 +12,21 @@ class ExchangeInfoHeader extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 30),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            theme.colorScheme.primaryContainer,
-            theme.colorScheme.surface,
-          ],
+          colors: [theme.colorScheme.inversePrimary, theme.colorScheme.surface],
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: kToolbarHeight + 4),
+          // Logo and Name Row
           Row(
             children: [
+              // Logo placeholder
               Container(
                 width: 80,
                 height: 80,
@@ -43,6 +41,8 @@ class ExchangeInfoHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 20),
+
+              // Exchange details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,8 +58,8 @@ class ExchangeInfoHeader extends StatelessWidget {
                     Text(
                       'ID: ${exchangeInfo.id}',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onPrimaryContainer.withValues(
-                          alpha: 0.8,
+                        color: theme.colorScheme.onPrimaryContainer.withOpacity(
+                          0.8,
                         ),
                       ),
                     ),
@@ -69,7 +69,7 @@ class ExchangeInfoHeader extends StatelessWidget {
                         exchangeInfo.description,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onPrimaryContainer
-                              .withValues(alpha: 0.9),
+                              .withOpacity(0.9),
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -80,7 +80,10 @@ class ExchangeInfoHeader extends StatelessWidget {
               ),
             ],
           ),
+
           const SizedBox(height: 24),
+
+          // Stats Grid
           Row(
             children: [
               Expanded(
@@ -114,7 +117,10 @@ class ExchangeInfoHeader extends StatelessWidget {
               ),
             ],
           ),
+
           const SizedBox(height: 20),
+
+          // Website and Launch Date
           Row(
             children: [
               if (exchangeInfo.urls.website.isNotEmpty) ...[
@@ -159,7 +165,7 @@ class ExchangeInfoHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -202,7 +208,7 @@ class ExchangeInfoHeader extends StatelessWidget {
         Icon(
           icon,
           size: 20,
-          color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+          color: theme.colorScheme.onPrimaryContainer.withOpacity(0.8),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -212,9 +218,7 @@ class ExchangeInfoHeader extends StatelessWidget {
               Text(
                 label,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer.withValues(
-                    alpha: 0.7,
-                  ),
+                  color: theme.colorScheme.onPrimaryContainer.withOpacity(0.7),
                 ),
               ),
               Text(
