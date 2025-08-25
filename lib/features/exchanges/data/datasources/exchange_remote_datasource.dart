@@ -21,10 +21,18 @@ class ExchangeRemoteDataSourceImpl implements ExchangeRemoteDataSource {
       );
 
       if (response.isSuccess && response.jsonBody != null) {
-        final data = response.jsonBody!['data'] as List;
-        return data
-            .map((json) => ExchangeAssetModel.fromJson(json ?? {}))
-            .toList();
+        final data = response.jsonBody!['data'];
+        if (data is List) {
+          return data
+              .map((json) => ExchangeAssetModel.fromJson(json ?? {}))
+              .toList();
+        } else if (data is Map) {
+          final listData = data['$exchangeId'] as List;
+          return listData
+              .map((json) => ExchangeAssetModel.fromJson(json ?? {}))
+              .toList();
+        }
+        throw ServerException(message: 'Invalid data format', code: '400');
       } else {
         throw ServerException(
           message: 'Failed to get exchange assets: ${response.statusCode}',

@@ -1,62 +1,56 @@
-import 'package:coin_market_app/features/exchanges/presentation/bloc/exchange_bloc.dart';
-import 'package:coin_market_app/features/exchanges/presentation/bloc/exchange_event.dart';
-import 'package:coin_market_app/features/exchanges/presentation/bloc/exchange_state.dart';
-import 'package:coin_market_app/features/exchanges/presentation/widgets/exchange_asset_card.dart';
+import 'package:coin_market_app/features/home/presentation/bloc/home_bloc.dart';
+import 'package:coin_market_app/features/home/presentation/bloc/home_event.dart';
+import 'package:coin_market_app/features/home/presentation/bloc/home_state.dart';
+import 'package:coin_market_app/features/home/presentation/widgets/exchange_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ExchangesListPage extends StatefulWidget {
-  final int exchangeId;
-
-  const ExchangesListPage({super.key, required this.exchangeId});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<ExchangesListPage> createState() => _ExchangesListPageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _ExchangesListPageState extends State<ExchangesListPage> {
+class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    context.read<ExchangeBloc>().add(
-      GetExchangeAssetsEvent(exchangeId: widget.exchangeId),
-    );
+    context.read<HomeBloc>().add(const GetAllExchangesEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Exchange Assets (ID: ${widget.exchangeId})'),
+        title: const Text('Coin Market App'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => _refreshAssets(),
-            tooltip: 'Refresh (Cache: 5 min)',
+            onPressed: () => _refreshExchanges(),
+            tooltip: 'Refresh exchanges',
           ),
         ],
       ),
-      body: BlocBuilder<ExchangeBloc, ExchangeState>(
+      body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
-          if (state is ExchangeLoading) {
+          if (state is HomeLoading) {
             return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('Loading exchange assets...'),
+                  Text('Loading exchanges...'),
                 ],
               ),
             );
           }
 
-          if (state is ExchangeAssetsLoaded) {
-            if (state.assets.isEmpty) {
-              return const Center(
-                child: Text('No assets found for this exchange.'),
-              );
+          if (state is ExchangesLoaded) {
+            if (state.exchanges.isEmpty) {
+              return const Center(child: Text('No exchanges found.'));
             }
 
             return Column(
@@ -68,18 +62,18 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.cached,
+                        Icons.currency_exchange,
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Exchange Assets (ID: ${widget.exchangeId})',
+                          'Available Exchanges',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ),
                       Text(
-                        '${state.assets.length} assets',
+                        '${state.exchanges.length} exchanges',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -88,11 +82,16 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: state.assets.length,
+                    itemCount: state.exchanges.length,
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: ExchangeAssetCard(asset: state.assets[index]),
+                        child: ExchangeListItem(
+                          exchange: state.exchanges[index],
+                          onTap: () => _navigateToExchangeDetails(
+                            state.exchanges[index].id,
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -101,7 +100,7 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
             );
           }
 
-          if (state is ExchangeError) {
+          if (state is HomeError) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -119,7 +118,7 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: _refreshAssets,
+                    onPressed: _refreshExchanges,
                     child: const Text('Retry'),
                   ),
                 ],
@@ -133,9 +132,11 @@ class _ExchangesListPageState extends State<ExchangesListPage> {
     );
   }
 
-  void _refreshAssets() {
-    context.read<ExchangeBloc>().add(
-      RefreshExchangeAssetsEvent(exchangeId: widget.exchangeId),
-    );
+  void _refreshExchanges() {
+    context.read<HomeBloc>().add(const GetAllExchangesEvent());
+  }
+
+  void _navigateToExchangeDetails(int exchangeId) {
+    Navigator.pushNamed(context, '/exchange-details', arguments: exchangeId);
   }
 }

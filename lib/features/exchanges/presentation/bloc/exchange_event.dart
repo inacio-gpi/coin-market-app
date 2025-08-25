@@ -24,3 +24,7 @@ class RefreshExchangeAssetsEvent extends ExchangeEvent {
   @override
   List<Object?> get props => [exchangeId];
 }
+
+class GetAllExchangesEvent extends ExchangeEvent {
+  const GetAllExchangesEvent();
+}
