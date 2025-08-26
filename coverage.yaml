@@ -1,0 +1,20 @@
+coverage_options:
+  enabled: true
+  html_directory: coverage/html
+  lcov_directory: coverage/lcov
+  excludes:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.mocks.dart"
+    - "**/generated_plugin_registrant.dart"
+    - "**/main.dart"
+    - "**/test/**"
+    - "**/coverage/**"
+    - "**/.dart_tool/**"
+    - "**/build/**"
+    - "**/ios/**"
+    - "**/android/**"
+    - "**/windows/**"
+    - "**/macos/**"
+    - "**/linux/**"
+    - "**/web/**"
